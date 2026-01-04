@@ -1,7 +1,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
+#include "cJSON.h"
 
 void printpoke(char *poke){
     FILE *fptr = fopen(poke, "r");
@@ -16,11 +18,38 @@ void printpoke(char *poke){
 }
 
 char *getjson(char *name){
+    //TODO: Works with regular pokemon but not mega's 
+    //The json isnt filled
     char command[100];
     int size = INT_MAX;
     sprintf(command, "curl -s https://pokeapi.co/api/v2/pokemon/%s", name);
     FILE *pipe = popen(command, "r");
     char *line = malloc(sizeof(char) * size);
     while (fgets(line, size, pipe) != NULL);
+    pclose(pipe);
     return line;
+}
+
+int *getstats(char *parsedjson){
+    cJSON *parsedfile = cJSON_Parse(parsedjson);
+    cJSON *name = NULL;
+    cJSON *stats = NULL;
+    cJSON *stat = NULL;
+    int *finalstat = malloc(sizeof(int) * 6);
+    int num = 0;
+    name = cJSON_GetObjectItemCaseSensitive(parsedfile, "name");
+    if (cJSON_IsString(name) && (name->valuestring != NULL)){
+        printf("%s\n", name->valuestring);
+    }
+    stats = cJSON_GetObjectItemCaseSensitive(parsedfile, "stats");
+    cJSON_ArrayForEach(stat, stats){
+        cJSON *base_stat = cJSON_GetObjectItemCaseSensitive(stat, "base_stat");
+        finalstat[num] = base_stat->valueint;
+        num += 1;
+    }
+    free(parsedfile);
+    free(name);
+    free(stats);
+    free(stat);
+    return finalstat;
 }

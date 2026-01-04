@@ -4,5 +4,6 @@
 
 void printpoke(char *poke);
 char *getjson(char *name);
+int *getstats(char *parsedjson);
 
 #endif
