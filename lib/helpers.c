@@ -20,11 +20,16 @@ void printpoke(char *poke){
 char *getjson(char *name){
     //TODO: Works with regular pokemon but not mega's 
     //The json isnt filled
-    char command[100];
+    char command[300];
     int size = INT_MAX;
     sprintf(command, "curl -s https://pokeapi.co/api/v2/pokemon/%s", name);
     FILE *pipe = popen(command, "r");
     char *line = malloc(sizeof(char) * size);
+    if (line == NULL){
+        printf("[ERROR]: Could not malloc 2gb\n");
+        exit(0);
+    }
+    //Its something here
     while (fgets(line, size, pipe) != NULL);
     pclose(pipe);
     return line;
