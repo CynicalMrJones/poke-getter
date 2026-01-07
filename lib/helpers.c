@@ -15,13 +15,14 @@ void printpoke(char *poke){
     while(fgets(buff, sizeof(buff), fptr) != NULL){
         printf("%s", buff);
     }
+    fclose(fptr);
 }
 
 char *getjson(char *name){
     //TODO: Works with regular pokemon but not mega's 
     //The json isnt filled
     char command[300];
-    int size = INT_MAX;
+    int size = INT_MAX / 2;
     sprintf(command, "curl -s https://pokeapi.co/api/v2/pokemon/%s", name);
     FILE *pipe = popen(command, "r");
     char *line = malloc(sizeof(char) * size);
@@ -52,9 +53,9 @@ int *getstats(char *parsedjson){
         finalstat[num] = base_stat->valueint;
         num += 1;
     }
-    free(parsedfile);
-    free(name);
-    free(stats);
-    free(stat);
+    cJSON_Delete(parsedfile);
+    cJSON_free(name);
+    cJSON_free(stats);
+    cJSON_free(stat);
     return finalstat;
 }
