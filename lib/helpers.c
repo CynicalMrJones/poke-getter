@@ -1,20 +1,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include "cJSON.h"
+#include "helpers.h"
 
 void printpoke(char *poke){
     FILE *fptr = fopen(poke, "r");
     if (fptr == NULL){
-        printf("There is no poke named %s\n", poke);
-        exit(0);
+        printf("Cannot find image named %s\n", poke);
     }
-    char buff[1000];
-    while(fgets(buff, sizeof(buff), fptr) != NULL){
-        printf("%s", buff);
+    else {
+        char buff[1000];
+        while(fgets(buff, sizeof(buff), fptr) != NULL){
+            printf("%s", buff);
+        }
+        fclose(fptr);
     }
-    fclose(fptr);
 }
 
 char *getjson(char *name){
@@ -24,21 +27,26 @@ char *getjson(char *name){
     FILE *pipe = popen(command, "r");
     char *line = malloc(sizeof(char) * size);
     if (line == NULL){
-        printf("[ERROR]: Could not malloc 2gb\n");
+        printf("[ERROR]: Could not malloc 1gb\n");
         exit(0);
     }
-    //Its something here
     while (fgets(line, size, pipe) != NULL);
     pclose(pipe);
+    if (strcmp(line, "Not Found") == 0){
+        printf("There is no pokemon named: %s\n", name);
+        exit(0);
+    }
     return line;
 }
 
-int *getstats(char *parsedjson){
+Stats *getstats(char *parsedjson){
     cJSON *parsedfile = cJSON_Parse(parsedjson);
     cJSON *name = NULL;
     cJSON *stats = NULL;
     cJSON *stat = NULL;
-    int *finalstat = malloc(sizeof(int) * 6);
+    cJSON *types = NULL;
+    cJSON *type = NULL;
+    Stats *finalstat = malloc(sizeof(Stats) * 1);
     int num = 0;
     name = cJSON_GetObjectItemCaseSensitive(parsedfile, "name");
     if (cJSON_IsString(name) && (name->valuestring != NULL)){
@@ -47,12 +55,23 @@ int *getstats(char *parsedjson){
     stats = cJSON_GetObjectItemCaseSensitive(parsedfile, "stats");
     cJSON_ArrayForEach(stat, stats){
         cJSON *base_stat = cJSON_GetObjectItemCaseSensitive(stat, "base_stat");
-        finalstat[num] = base_stat->valueint;
+        finalstat->stats[num] = base_stat->valueint;
+        num += 1;
+    }
+    num = 0;
+    types = cJSON_GetObjectItemCaseSensitive(parsedfile, "types");
+    // There is definitly a simpler way to do this but this works
+    cJSON_ArrayForEach(type, types){
+        cJSON *typearr= cJSON_GetObjectItemCaseSensitive(type, "type");
+        cJSON *type_name = cJSON_GetObjectItemCaseSensitive(typearr, "name");
+        strcpy(finalstat->type[num], type_name->valuestring);
         num += 1;
     }
     cJSON_Delete(parsedfile);
     cJSON_free(name);
     cJSON_free(stats);
     cJSON_free(stat);
+    cJSON_free(types);
+    cJSON_free(type);
     return finalstat;
 }
