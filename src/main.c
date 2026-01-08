@@ -11,7 +11,7 @@ int main(int argc, char **argv){
         printf("Please give a pokemon\n");
         exit(0);
     }
-    char command[15];
+    char command[30];
     sprintf(command, "pokes/%s", argv[1]);
     printpoke(command);
     char *json = getjson(argv[1]);

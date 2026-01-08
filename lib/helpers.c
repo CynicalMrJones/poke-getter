@@ -1,7 +1,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <limits.h>
 #include "cJSON.h"
 
@@ -19,8 +18,6 @@ void printpoke(char *poke){
 }
 
 char *getjson(char *name){
-    //TODO: Works with regular pokemon but not mega's 
-    //The json isnt filled
     char command[300];
     int size = INT_MAX / 2;
     sprintf(command, "curl -s https://pokeapi.co/api/v2/pokemon/%s", name);
