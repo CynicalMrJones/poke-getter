@@ -68,10 +68,5 @@ Stats *getstats(char *parsedjson){
         num += 1;
     }
     cJSON_Delete(parsedfile);
-    cJSON_free(name);
-    cJSON_free(stats);
-    cJSON_free(stat);
-    cJSON_free(types);
-    cJSON_free(type);
     return finalstat;
 }
